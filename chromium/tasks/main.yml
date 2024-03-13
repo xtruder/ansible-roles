@@ -1,0 +1,21 @@
+---
+- name: Install chromium flatpak package
+  community.general.flatpak:
+    remote: flathub
+    name: chromium
+    state: present
+
+- name: Install firefox Flatpak override
+  copy:
+    src: org.chromium.Chromium
+    dest: ~/.local/share/flatpak/overrides/org.chromium.Chromium
+
+- name: Ensure ~/.config directory exists
+  file:
+    path: "~/.var/app/org.chromium.Chromium/config/"
+    state: directory
+
+- name: Copy chromium-flags.conf
+  copy:
+    src: chromium-flags.conf
+    dest: ~/.var/app/org.chromium.Chromium/config/chromium-flags.conf

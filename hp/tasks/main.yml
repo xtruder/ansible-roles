@@ -1,0 +1,46 @@
+---
+- name: Install hplip packages (fedora)
+  package:
+    name:
+      - hplip
+      - "{{ 'hplip-gui' if hp_enable_gui else omit }}"
+    state: present
+
+# - name: Try to install hplip-plugin
+#   package:
+#     name: hplip-plugin
+#     state: present
+#   become: yes
+#   ignore_errors: true
+
+- name: Gather the rpm package facts
+  package_facts:
+    manager: auto
+
+- name: Print packages
+  debug:
+    var: ansible_facts.packages
+
+- name: Ensure hp directory exists
+  file:
+    path: /var/lib/hp
+    state: directory
+  become: yes
+
+- name: Copy hplip-plugin state file
+  ansible.builtin.template:
+    src: hp/hplip.state.j2
+    dest: /var/lib/hp/hplip.state
+    mode: "744"
+  vars:
+    hplip_version: "{{ ansible_facts.packages['hplip'].version.split('.')[0:3] | join('.') }}"
+  when: "'hplip' in ansible_facts.packages"
+  become: yes
+
+- name: Copy additional hp udev rules
+  copy:
+    src: "hp/{{item}}"
+    dest: "/etc/udev/rules.d/{{item}}"
+  with_items:
+    - hp_lt4110.rules
+  become: yes

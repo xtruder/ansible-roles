@@ -1,0 +1,18 @@
+---
+- name: Upgrade packages (dnf)
+  dnf:
+    name: "*"
+    state: latest
+  when: 
+    - pkg_upgrade == True
+    - ansible_facts['pkg_mgr'] == "dnf"
+
+- name: Upgrade packages (rpm-ostree)
+  ansible.posix.rpm_ostree_upgrade:
+  when:
+    - pkg_upgrade == True
+    - ansible_facts['pkg_mgr'] == "community.general.rpm_ostree_pkg"
+
+- name: akmods setup
+  include_tasks: akmods.yml
+  when: enable_secure_boot

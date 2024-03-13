@@ -1,0 +1,38 @@
+---
+- name: Create working directory
+  ansible.builtin.file:
+    path: /srv/traefik
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy traefik configuration
+  ansible.builtin.copy:
+    content: "{{ traefik_defaults | combine(traefik_config, recursive=true) | to_nice_yaml }}"
+    dest: /srv/traefik/config/traefik.yml
+    owner: traefik
+    group: traefik
+    mode: 0644
+
+- name: Copy traefik dynamic configuration
+  ansible.builtin.copy:
+    content: "{{ traefik_dynamic_config | to_nice_yaml }}"
+    dest: /srv/traefik/config/traefik-dynamic.yml
+    owner: traefik
+    group: traefik
+    mode: 0644
+
+- name: Copy docker-compose.yml
+  ansible.builtin.copy:
+    content: "{{ traefik_docker_compose_defaults | combine(traefik_docker_compose_overrides, recursive=True) | to_nice_yaml }}"
+    dest: /srv/traefik/docker-compose.yml
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Start traefik
+  community.docker.docker_compose:
+    project_src: /srv/traefik
+    project_name: pritunl
+    state: present

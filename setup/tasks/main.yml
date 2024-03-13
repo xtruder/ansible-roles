@@ -1,0 +1,13 @@
+---
+- name: Fix package manager when running fedora with rpm-ostree
+  set_fact:
+    ansible_facts: "{{ ansible_facts | combine({ 'pkg_mgr': 'community.general.rpm_ostree_pkg' }, recursive=True) }}"
+  when:
+    - ansible_facts['distribution'] == "Fedora"
+    - ansible_facts['pkg_mgr'] == "atomic_container"
+
+- name: Print distro info
+  debug:
+    msg:
+      - "distribution: {{ ansible_facts['distribution'] }}"
+      - "pkg_mgr: {{ ansible_facts['pkg_mgr'] }}"

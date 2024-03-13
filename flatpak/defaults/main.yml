@@ -1,0 +1,8 @@
+---
+pkg_upgrade: False
+
+flatpak_remotes:
+  flathub: https://flathub.org/repo/flathub.flatpakrepo
+  fedora: oci+https://registry.fedoraproject.org
+
+flatpak_install_packages: []

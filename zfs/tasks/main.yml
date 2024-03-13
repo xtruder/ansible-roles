@@ -1,0 +1,16 @@
+---
+- name: Install zfs packages
+  ansible.builtin.package:
+    name:
+      - zfsutils-linux
+      - zfs-zed
+
+- name: Create systemd service for loading zfs keys
+  ansible.builtin.copy:
+    src: zfs-load-key.service
+    dest: /etc/systemd/system/zfs-load-key.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - Reload zfs-load-key

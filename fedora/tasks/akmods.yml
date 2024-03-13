@@ -1,0 +1,82 @@
+---
+- name: Install akmods
+  package:
+    name: 
+      - akmods
+      - mokutil
+
+      # neeed for building akmods-keys that is required to include keys to ostree store for signing
+      - "{{ 'rpmdevtools' if ansible_facts['pkg_mgr'] == 'community.general.rpm_ostree_pkg' else omit }}"
+    state: present
+  register: install_akmods
+  become: yes
+
+- name: Ask reboot (rpm-ostree)
+  pause:
+    prompt: "akmod installed, you would need to reboot to complete. Reboot? (yes/no)?"
+  register: should_reboot
+  when:
+    - ansible_facts['pkg_mgr'] == "community.general.rpm_ostree_pkg"
+    - install_akmods.changed
+
+- name: Reboot (rpm-ostree)
+  reboot: 
+  become: yes
+  when:
+    - ansible_facts['pkg_mgr'] == "community.general.rpm_ostree_pkg"
+    - install_akmods.changed
+    - "{{ should_reboot.user_input | bool }}"
+
+- name: Check if akmods cert exists
+  stat:
+    path: /etc/pki/akmods/certs/public_key.der
+  become: yes
+  register: akmods_cert_exists
+
+- name: Generate akmods CA
+  command:
+    cmd: kmodgenca --auto  
+  become: yes
+  register: generate_kmod_ca
+  when: not akmods_cert_exists.stat.exists
+
+- name: Import cert with mokutil
+  command:
+    cmd: mokutil --import /etc/pki/akmods/certs/public_key.der
+  become: yes
+  when: generate_kmod_ca.changed
+
+- name: Build and install akmods-keys (rpm-ostree)
+  become: yes
+  block:
+    - name: Clone akmod-keys (rpm-ostree)
+      git:
+        repo: https://github.com/CheariX/silverblue-akmods-keys.git
+        dest: /root/akmods-keys
+        force: true
+
+    - name: Find if akmod-keys rpm already built (rpm-ostree)
+      find:
+        paths: /root/akmods-keys
+        patterns: 'akmods-keys-*.rpm'
+      register: found_akmods_rpm
+
+    - name: Build akmod-keys (rpm-ostree)
+      command:
+        chdir: /root/akmods-keys
+        cmd: bash ./setup.sh
+      when: found_akmods_rpm.matched == 0
+
+    - name: Find built akmod-keys rpm (rpm-ostree)
+      find:
+        paths: /root/akmods-keys
+        patterns: 'akmods-keys-*.rpm'
+      register: found_akmods_rpm
+
+    - name: Install akmod-keys rpm (rpm-ostree)
+      community.general.rpm_ostree_pkg:
+        name: "{{ found_akmods_rpm.files[0].path }}"
+        state: present
+      when: found_akmods_rpm.matched > 0
+
+  when: ansible_facts['pkg_mgr'] == "community.general.rpm_ostree_pkg"

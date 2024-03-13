@@ -1,0 +1,5 @@
+# -- Global list of firefox addons
+addons: []
+
+# -- Dict of firefox profiles to create
+profiles: {}

@@ -1,0 +1,22 @@
+---
+- name: Create working directory
+  ansible.builtin.file:
+    path: /srv/pritunl
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy docker-compose.yml
+  ansible.builtin.copy:
+    content: "{{ pritunl_docker_compose_defaults | combine(pritunl_docker_compose, recursive=True) | to_nice_yaml }}"
+    dest: /srv/pritunl/docker-compose.yml
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Start pritunl
+  community.docker.docker_compose:
+    project_src: /srv/pritunl
+    project_name: pritunl
+    state: present

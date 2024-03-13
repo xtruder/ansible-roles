@@ -1,0 +1,39 @@
+---
+- name: Install extra gnome packages (fedora)
+  package:
+    name:
+    # system gnome shell extensions
+    - gnome-shell-extension-appindicator
+    - gnome-shell-extension-system-monitor-applet
+    - gnome-shell-extension-gpaste
+    #- gnome-shell-extension-space-bar
+    - gnome-shell-extension-pop-shell
+    - gnome-pomodoro
+
+    # apperance
+    - gnome-tweak-tool
+
+    # desktop
+    - gpaste
+    - ulauncher
+
+    state: present
+  become: yes
+  when: ansible_facts['distribution'] == "Fedora"
+
+- name: Install extra gnome extensions
+  shell: gnome-extensions list | grep {{ item.key }} || gnome-extensions install {{ item.value }}  
+  register: result
+  changed_when: "item.key not in result.stdout"
+  with_dict: "{{ install_extensions }}"
+
+- name: Template gnome dconf settings
+  template:
+    src: dconf.ini
+    dest: ~/.config/dconf.ini
+    mode: "600"
+  register: dconf_template
+
+- name: Load gnome dconf settings from {{ role_path }}/files/
+  shell: dconf load -f / < {{ dconf_template.dest }}
+  when: dconf_template.changed

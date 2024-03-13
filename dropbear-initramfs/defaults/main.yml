@@ -1,0 +1,4 @@
+---
+encrypted_rootfs: false
+dropbear_port: 10022
+dropbear_options: "-s -I 60 -p {{dropbear_port}}"

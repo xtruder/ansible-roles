@@ -1,0 +1,25 @@
+---
+- name: Install qemu
+  package:
+    name:
+      - qemu-kvm
+      - qemu-img
+
+      # UEFI firmware
+      - edk2-ovmf
+      - edk2-aarch64
+    state: present
+  become: yes
+
+- name: Copy aarch64 ovmf code
+  copy:
+    src: /usr/share/edk2/aarch64/QEMU_EFI-silent-pflash.raw
+    dst: /usr/share/edk2/ovmf/OVMF_CODE.fd
+    remote_src: yes
+    backup: yes
+  become: yes
+  when: ansible_architecture == "aarch64"
+
+# - name: Create aarch64 ovmf vars
+#   command:
+#     cmd: qemu-img resize -f raw 

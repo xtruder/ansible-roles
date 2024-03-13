@@ -1,0 +1,7 @@
+---
+- name: Reload zfs-load-key
+  systemd:
+    name: zfs-load-key
+    state: started
+    enabled: yes
+    daemon_reload: true

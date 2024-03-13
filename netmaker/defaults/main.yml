@@ -1,0 +1,11 @@
+---
+nm_image_tag: v0.20.4
+#nm_email: "example@email.com"
+#nm_domain: "nm.123-456-789-012.nip.io"
+#nm_server_host: "YOUR_IP_ADDRESS"
+#nm_master_key: "RANDOM STRING"
+nm_turn_username: "turn"
+#nm_turn_password: "RANDOM STRING"
+nm_mq_username: "mq"
+#nm_mq_password: "RANDOM STRING"
+nm_node_id: "netmaker-server-1"

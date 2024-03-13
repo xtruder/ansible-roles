@@ -1,0 +1,49 @@
+---
+- name: Create working directory
+  ansible.builtin.file:
+    path: /srv/netmaker
+    state: directory
+    owner: root
+    group: root
+    mode: 0770
+
+- name: Copy netmaker config files
+  ansible.builtin.copy:
+    src: "{{item}}"
+    dest: /srv/netmaker/{{item}}
+    owner: root
+    group: root
+    mode: 0660
+  loop:
+    - mosquitto.conf
+    - docker-compose.yml
+
+- name: Copy scripts and make them executable
+  ansible.builtin.copy:
+    src: "{{item}}"
+    dest: /srv/netmaker/{{item}}
+    owner: root
+    group: root
+    mode: 0770
+  loop:
+    - wait.sh
+    #- nm-certs.sh
+
+- name: Template netmaker.env file
+  ansible.builtin.template:
+    src: netmaker.env.j2
+    dest: /srv/netmaker/netmaker.env
+    owner: root
+    group: root
+
+# - name: Use certbot to get certs
+#   ansible.builtin.command:
+#     cmd: /srv/netmaker/nm-certs.sh
+#     creates: "/srv/netmaker/letsencrypt/live/api.{{nm_domain}}/fullchain.pem"
+
+- name: Start netmaker
+  community.docker.docker_compose:
+    project_src: /srv/netmaker
+    project_name: netmaker
+    env_file: /srv/netmaker/netmaker.env
+    state: present

@@ -1,0 +1,25 @@
+---
+- name: Install crypto packages
+  package:
+    name:
+      # trezor support
+      - trezord
+      - python-trezor_agent
+
+      # tools
+      - tor
+    state: present
+  become: yes
+
+- name: Install flatpak crypto packages
+  community.general.flatpak:
+    remote: flathub
+    name:
+      #web
+      - com.github.micahflee.torbrowser-launcher
+
+      # crypto
+      - org.getmonero.Monero
+      - io.exodus.Exodus
+    state: present
+    method: user

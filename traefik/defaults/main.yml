@@ -1,0 +1,72 @@
+---
+traefik_config: {}
+traefik_dynamic_config: {}
+traefik_defaults:
+  global:
+    checkNewVersion: true
+    sendAnonymousUsage: false
+
+  api:
+    dashboard: true
+    insecure: true
+
+  accessLog:
+    filePath: "/var/log/traefik/access.log"
+
+  serversTransport:
+    insecureSkipVerify: true
+
+  entryPoints:
+    web:
+      address: :80
+      http:
+        redirections:
+          entryPoint:
+            to: websecure
+            scheme: https
+
+    websecure:
+      address: :443
+      http:
+        tls:
+          certResolver: default
+
+  certificatesResolvers:
+    default:
+      acme:
+        storage: /etc/traefik/acme.json
+        httpChallenge:
+          entryPoint: web
+
+  providers:
+    docker:
+      exposedByDefault: false
+    file:
+      filename: "/etc/traefik/traefik-dynamic.yml"
+
+traefik_docker_compose_overrides: {}
+traefik_docker_compose_defaults:
+  version: "3.5"
+
+  services:
+    traefik:
+      container_name: traefik
+      image: traefik:2.10
+      ports:
+        - "80:80"
+        - "443:443"
+        # remove port 8080 for production
+        - "8080:8080"
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - /srv/traefik/config:/etc/traefik
+        - /srv/traefik/logs:/var/log/traefik
+      extra_hosts:
+        - "host.docker.internal:172.17.0.1"
+      networks:
+        - proxy
+
+  networks:
+    proxy:
+      name: proxy
+      driver: bridge

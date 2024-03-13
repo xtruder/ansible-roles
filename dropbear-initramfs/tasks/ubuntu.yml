@@ -1,0 +1,22 @@
+---
+- name: Install initramfs-dropbeak
+  apt:
+    pkg: dropbear-initramfs
+    state: present
+
+- name: set dropbear options
+  ansible.builtin.lineinfile:
+    path: /etc/dropbear/initramfs/dropbear.conf
+    regexp: '^DROPBEAR_OPTIONS= '
+    insertafter: '^#DROPBEAR_OPTIONS='
+    line: 'DROPBEAR_OPTIONS="{{ dropbear_options }}"'
+  register: dropbear_config
+  notify: "Update Initramfs"
+
+- name: set dropbear authorized keys
+  ansible.builtin.template:
+    src: authorized_keys.j2
+    dest: /etc/dropbear/initramfs/authorized_keys
+    mode: 0644
+  when: dropbear_authorized_keys is defined
+  notify: "Update Initramfs"

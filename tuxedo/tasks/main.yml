@@ -1,0 +1,19 @@
+---
+- name: Add tuxedo yum repo
+  yum_repository:
+    name: copr:copr.fedorainfracloud.org:offlinehacker:tuxedo
+    description: Copr repo for tuxedo owned by offlinehacker
+    baseurl: https://download.copr.fedorainfracloud.org/results/offlinehacker/tuxedo/fedora-$releasever-$basearch/
+    skip_if_unavailable: True
+    gpgcheck: 1
+    gpgkey: https://download.copr.fedorainfracloud.org/results/offlinehacker/tuxedo/pubkey.gpg
+    repo_gpgcheck: 0
+    enabled: 1
+  become: yes
+
+- name: Install tuxedo packages
+  package:
+    name:
+      - akmod-tuxedo-drivers
+    state: present
+  become: yes

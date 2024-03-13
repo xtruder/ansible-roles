@@ -1,0 +1,48 @@
+---
+incus_preseed_defaults:
+  config: {}
+
+  networks:
+  - config:
+      ipv4.address: 10.227.60.1/24
+      ipv4.nat: "true"
+      ipv6.address: fd42:49ed:2bf3:f0ad::1/64
+      ipv6.nat: "true"
+    description: ""
+    name: incusbr0
+    type: bridge
+    project: default
+
+  storage_pools:
+  - config:
+      source: /var/lib/incus/storage-pools/default
+    description: ""
+    name: default
+    driver: dir
+
+  profiles:
+  - config: {}
+    description: Default Incus profile
+    devices:
+      eth0:
+        name: eth0
+        network: incusbr0
+        type: nic
+      root:
+        path: /
+        pool: default
+        type: disk
+    name: default
+
+  projects:
+  - config:
+      features.images: "true"
+      features.networks: "true"
+      features.networks.zones: "true"
+      features.profiles: "true"
+      features.storage.buckets: "true"
+      features.storage.volumes: "true"
+    description: Default Incus project
+    name: default
+
+incus_preseed_overrides: {}

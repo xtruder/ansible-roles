@@ -1,0 +1,32 @@
+---
+- name: Add vscode yum repo
+  yum_repository:
+    name: vscode
+    description: Visual Studio Code
+    file: microsoft-vscode
+    baseurl: https://packages.microsoft.com/yumrepos/vscode
+    enabled: yes
+    gpgcheck: yes
+    gpgkey: https://packages.microsoft.com/keys/microsoft.asc
+  become: yes
+
+- name: Install vscode
+  package:
+    name: code
+    state: present
+  become: yes
+
+- name: Ensure desktop directory exists
+  file:
+    path: ~/.local/share/applications
+    state: directory
+
+- name: Copy desktop file with wayland support
+  copy:
+    src: code.desktop
+    dest: ~/.local/share/applications/code.desktop
+
+- name: Install vscode extensions
+  shell: code --list-extensions  | grep {{ item }} || code --install-extension {{item}} >/dev/null
+  changed_when: "item not in result.stdout"
+  with_items: "{{ extensions }}"

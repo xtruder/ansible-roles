@@ -1,0 +1,48 @@
+---
+- name: Install flatpak
+  package:
+    name: flatpak
+    state: present
+  become: yes
+
+- name: Add flathub remotes
+  community.general.flatpak_remote:
+    name: "{{ item.key }}"
+    state: present
+    flatpakrepo_url: "{{ item.value }}"
+    method: user
+  with_dict: "{{ flatpak_remotes }}"
+
+- name: Upgrade all flatpaks
+  ansible.builtin.command: flatpak update --user --noninteractive
+  register: flatpak_update_output
+  changed_when: "'app/' in flatpak_update_output.stdout"
+  when: pkg_upgrade == True
+
+- name: Ensure flatpak overrides directory exists
+  file:
+    path: ~/.local/share/flatpak/overrides
+    state: directory
+
+- name: Install Flatpak overrides
+  ansible.posix.synchronize:
+    src: overrides
+    dest: ~/.local/share/flatpak/overrides
+
+- name: Ensure flatpak files directory exists
+  file:
+    path: ~/.local/share/flatpak/files
+    state: directory
+
+- name: Install Flatpak files
+  ansible.posix.synchronize:
+    src: extra_files
+    dest: ~/.local/share/flatpak/files
+
+- name: Install flatpak packages
+  community.general.flatpak:
+    remote: "{{item.split(':')[0]}}"
+    name: "{{item.split(':')[1]}}"
+    state: present
+    method: user
+  with_items: "{{ flatpak_install_packages }}"

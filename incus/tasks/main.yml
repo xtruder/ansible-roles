@@ -1,0 +1,33 @@
+---
+- name: Incus yum repository
+  yum_repository:
+    name: copr:copr.fedorainfracloud.org:ganto:lxc4
+    file: ganto-lxc4-incus
+    description: Copr repo for lxc4 owned by ganto
+    baseurl: https://download.copr.fedorainfracloud.org/results/ganto/lxc4/fedora-$releasever-$basearch/
+    skip_if_unavailable: True
+    gpgcheck: 1
+    gpgkey: https://download.copr.fedorainfracloud.org/results/ganto/lxc4/pubkey.gpg
+    repo_gpgcheck: 0
+    enabled: 1
+  become: yes 
+
+- name: Install incus
+  package:
+    name: incus
+    state: present
+  become: yes
+
+- name: Gather incus preseed config
+  command: "incus admin init --dump"
+  register: result
+  changed_when: false
+
+- name: Pressed incus config
+  command:
+    cmd: "incus admin init --preseed"
+    stdin: "{{ config | to_yaml(indent=4) }}"
+  vars:
+    config: "{{ incus_preseed_defaults | combine(incus_preseed_overrides, recursive=True, list_merge='append_rp') }}"
+  when: (result.stdout | from_yaml) != config
+  become: yes
