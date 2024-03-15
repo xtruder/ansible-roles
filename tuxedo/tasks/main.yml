@@ -32,7 +32,7 @@
     name:
       - tuxedo-control-center
 
-      - "{{ 'akmod-tuxedo-drivers' if ansible_facts['distribution'] == 'Fedora' else 'tuxedo-drivers' }}"
+      - "{{ (ansible_distribution == 'Fedora') | ternary('akmod-tuxedo-drivers', 'tuxedo-drivers') }}"
     state: present
   become: yes
 
