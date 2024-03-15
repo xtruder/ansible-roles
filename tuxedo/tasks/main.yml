@@ -1,19 +1,48 @@
 ---
-- name: Add tuxedo yum repo
+- name: Add tuxedo yum repo (for tuxedo-control-center)
+  ansible.builtin.yum_repository:
+    name: tuxedo
+    description: tuxedo
+    file: tuxedo
+    baseurl: https://rpm.tuxedocomputers.com/fedora/$releasever/x86_64/base
+    enabled: 1
+    gpgcheck: 1
+    gpgkey: https://rpm.tuxedocomputers.com/fedora/$releasever/0x54840598.pub.asc
+    skip_if_unavailable: False
+    exclude: tuxedo-drivers,tuxedo-keyboard # tuxedo drivers will be installed from tuxedo-drivers-kmod copr
+  become: yes
+  when: ansible_facts['distribution'] == "Fedora"
+
+- name: Add tuxedo-drivers-kmod yum repo (for fedora kmod driver install)
   yum_repository:
-    name: copr:copr.fedorainfracloud.org:offlinehacker:tuxedo
-    description: Copr repo for tuxedo owned by offlinehacker
-    baseurl: https://download.copr.fedorainfracloud.org/results/offlinehacker/tuxedo/fedora-$releasever-$basearch/
+    name: copr:copr.fedorainfracloud.org:offlinehacker:tuxedo-drivers-kmod
+    description: Copr repo for tuxedo-drivers-kmod owned by offlinehacker
+    file: offlinehacker-tuxedo-drivers-kmod
+    baseurl: https://download.copr.fedorainfracloud.org/results/offlinehacker/tuxedo-drivers-kmod/fedora-$releasever-$basearch/
     skip_if_unavailable: True
     gpgcheck: 1
-    gpgkey: https://download.copr.fedorainfracloud.org/results/offlinehacker/tuxedo/pubkey.gpg
+    gpgkey: https://download.copr.fedorainfracloud.org/results/offlinehacker/tuxedo-drivers-kmod/pubkey.gpg
     repo_gpgcheck: 0
     enabled: 1
   become: yes
+  when: ansible_facts['distribution'] == "Fedora"
 
 - name: Install tuxedo packages
   package:
     name:
-      - akmod-tuxedo-drivers
+      - tuxedo-control-center
+      - tuxedo-drivers
+
+      - "{{ 'akmod-tuxedo-drivers' if  ansible_facts['distribution'] == 'Fedora' else omit }}"
     state: present
   become: yes
+
+- name: AMD boot fixes
+  include_role:
+    name: kernel-cmdline
+  vars:
+    kernel_cmdline_args:
+      - amdgpu.dcdebugmask=0x10
+      - acpi.ec_no_wakeup=1
+      - gpiolib_acpi.ignore_interrupt=AMDI0030:00@0
+  when: "'AMD' in ansible_facts['processor'] or 'AuthenticAMD' in ansible_facts['processor']"

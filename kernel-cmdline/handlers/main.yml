@@ -1,0 +1,6 @@
+---
+- name: Update Grub2 config file fedora
+  shell: grub2-mkconfig -o {{ grub_cmdline_config }}
+
+- name: Update Grub2 config file ubuntu
+  shell: /usr/sbin/update-grub

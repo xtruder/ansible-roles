@@ -1,0 +1,8 @@
+---
+kernel_cmdline_args: []
+
+# Path to the Grub2 default file
+kernel_cmdline_default: /etc/default/grub
+
+# Path to the Grub2 config file
+grub_cmdline_config: /boot/grub2/grub.cfg

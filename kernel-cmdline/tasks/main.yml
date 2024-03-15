@@ -1,0 +1,24 @@
+---
+- name: Update Grub default config for fedora
+  lineinfile:
+    path: "{{ kernel_cmdline_default }}"
+    regexp: '^GRUB_CMDLINE_LINUX="((?:(?!{{ item }}).)*?)"$'
+    line: 'GRUB_CMDLINE_LINUX="\1 {{ item }}"'
+    backrefs: true
+  with_items: "{{ kernel_cmdline_args }}" 
+  become: yes
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_facts['pkg_mgr'] != "community.general.rpm_ostree_pkg"
+  notify:
+   - Update Grub2 config file fedora
+
+- name: Update kernel boot parameters for rpm-ostree
+  shell: "rpm-ostree kargs --append-if-missing='{{ item }}'"
+  with_items: "{{ kernel_cmdline_args }}" 
+  register: result
+  changed_when: '"No changes" not in result.stdout'
+  become: yes
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_facts['pkg_mgr'] == "community.general.rpm_ostree_pkg"
