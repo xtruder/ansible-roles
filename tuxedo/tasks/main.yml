@@ -11,7 +11,7 @@
     skip_if_unavailable: False
     exclude: tuxedo-drivers,tuxedo-keyboard # tuxedo drivers will be installed from tuxedo-drivers-kmod copr
   become: yes
-  when: ansible_facts['distribution'] == "Fedora"
+  when: ansible_distribution == "Fedora"
 
 - name: Add tuxedo-drivers-kmod yum repo (for fedora kmod driver install)
   yum_repository:
@@ -25,7 +25,7 @@
     repo_gpgcheck: 0
     enabled: 1
   become: yes
-  when: ansible_facts['distribution'] == "Fedora"
+  when: ansible_distribution == "Fedora"
 
 - name: Install tuxedo packages
   package:
@@ -44,4 +44,4 @@
       - amdgpu.dcdebugmask=0x10
       - acpi.ec_no_wakeup=1
       - gpiolib_acpi.ignore_interrupt=AMDI0030:00@0
-  when: "'AMD' in ansible_facts['processor'] or 'AuthenticAMD' in ansible_facts['processor']"
+  when: "'AMD' in ansible_processor or 'AuthenticAMD' in ansible_processor"
