@@ -31,9 +31,8 @@
   package:
     name:
       - tuxedo-control-center
-      - tuxedo-drivers
 
-      - "{{ 'akmod-tuxedo-drivers' if  ansible_facts['distribution'] == 'Fedora' else omit }}"
+      - "{{ 'akmod-tuxedo-drivers' if ansible_facts['distribution'] == 'Fedora' else 'tuxedo-drivers' }}"
     state: present
   become: yes
 
