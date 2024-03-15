@@ -18,14 +18,29 @@
     - ulauncher
 
     state: present
+  register: packages_installed
   become: yes
   when: ansible_facts['distribution'] == "Fedora"
 
 - name: Install extra gnome extensions
   shell: gnome-extensions list | grep {{ item.key }} || gnome-extensions install {{ item.value }}  
   register: result
+  become: no
   changed_when: "item.key not in result.stdout"
   with_dict: "{{ install_extensions }}"
+
+- name: Ask reboot
+  pause:
+    prompt: "gnome extensions installed, you would need to reboot to complete install. Reboot? (yes/no)?"
+  register: should_reboot
+  when: packages_installed.changed
+
+- name: Reboot
+  reboot: 
+  become: yes
+  when:
+    - packages_installed.changed
+    - "{{ should_reboot.user_input | bool }}"
 
 - name: Template gnome dconf settings
   template:
@@ -33,7 +48,23 @@
     dest: ~/.config/dconf.ini
     mode: "600"
   register: dconf_template
+  become: no
 
 - name: Load gnome dconf settings from {{ role_path }}/files/
   shell: dconf load -f / < {{ dconf_template.dest }}
   when: dconf_template.changed
+  become: no
+
+- name: Enable gnome shell extensions
+  shell: gnome-extensions list --enabled | grep {{ item }} || gnome-extensions enable {{ item }}
+  register: result
+  changed_when: "item not in result.stdout"
+  with_items: '{{ gnome_enable_extensions }}'
+  become: no
+
+- name: Disable gnome shell extensions
+  shell: gnome-extensions list --disabled | grep {{ item }} || gnome-extensions disable {{ item }}
+  register: result
+  changed_when: "item not in result.stdout"
+  with_items: '{{ gnome_disable_extensions }}'
+  become: no
