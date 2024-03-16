@@ -1,0 +1,19 @@
+---
+- name: Copy NetworkManager dispatch script for dnsovertls
+  template:
+    src: dnsovertls.sh
+    dest: /etc/NetworkManager/dispatcher.d/dnsovertls.sh
+    owner: root
+    group: root
+    mode: '0755'
+  become: yes
+
+- name: Configure systemd-resolved
+  template:
+    src: resolved.conf
+    dest: /etc/systemd/resolved.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart systemd-resolved
+  become: yes
