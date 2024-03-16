@@ -6,6 +6,7 @@
     owner: root
     group: root
     mode: '0755'
+  when: systemd_resolved_enable_nm_wlan_hook
   become: yes
 
 - name: Configure systemd-resolved
