@@ -1,0 +1,41 @@
+---
+- name: Add usbguard-gnome yum repo
+  yum_repository:
+    name: copr:copr.fedorainfracloud.org:offlinehacker:usbguard-gnome
+    description: Copr repo for usbguard-gnome owned by offlinehacker
+    file: offlinehacker-usbguard-gnome
+    baseurl: https://download.copr.fedorainfracloud.org/results/offlinehacker/usbguard-gnome/fedora-$releasever-$basearch/
+    skip_if_unavailable: True
+    gpgcheck: 1
+    gpgkey: https://download.copr.fedorainfracloud.org/results/offlinehacker/usbguard-gnome/pubkey.gpg
+    repo_gpgcheck: 0
+    enabled: 1
+  become: yes
+  when: ansible_distribution == "Fedora"
+
+- name: Install usbguard packages
+  package:
+    name: "{{ packages | select() | list }}"
+    state: present
+  vars:
+    packages:
+      - usbguard
+      - usbguard-dbus
+      - "{{ usbguard_gnome_integration | ternary('usbguard-gnome', '') }}"
+  become: yes
+
+- name: Enable gnome usb protection
+  community.general.dconf:
+    key: /org/gnome/desktop/privacy/usb-protection
+    value: "true"
+    state: present
+  when: usbguard_gnome_integration
+  become: no
+
+- name: Enable gnome usb protection (lockscreen)
+  community.general.dconf:
+    key: /org/gnome/desktop/privacy/usb-protection-level
+    value: '"lockscreen"'
+    state: present
+  when: usbguard_gnome_integration
+  become: no

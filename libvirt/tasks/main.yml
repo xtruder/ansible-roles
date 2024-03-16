@@ -1,0 +1,12 @@
+---
+- name: Install libvirt packages
+  package:
+    name:
+      - virt-install
+      - virt-manager
+      - virt-viewer
+      - virt-top
+      - libvirt-daemon-config-network
+      - libvirt-daemon-kvm
+    state: present
+  become: yes
