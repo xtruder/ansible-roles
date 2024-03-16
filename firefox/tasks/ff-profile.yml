@@ -1,26 +1,26 @@
 ---
 - name: check if firefox profile '{{profile}}' exists
   stat: 
-    path: "{{ansible_env.HOME}}/.mozilla/firefox/{{ profile }}"
+    path: ~/.mozilla/firefox/{{ profile }}
   register: firefox_profile_exists
 
 - name: Create firefox profile {{ profile }} if it does not exist
-  shell: 'flatpak run --filesystem=~/.mozilla org.mozilla.firefox -CreateProfile "{{ profile }} {{ansible_env.HOME}}/.mozilla/firefox/{{ profile }}"'
+  shell: flatpak run --filesystem=~/.mozilla org.mozilla.Firefox -CreateProfile "{{ profile }} ~/.mozilla/firefox/{{ profile }}"
   environment:
     WAYLAND_DISPLAY: wayland-0
   when: not firefox_profile_exists.stat.exists
 
 - name: Create firefox {{ profile }} profile desktop file
   template:
-    src: org.mozilla.firefox.desktop.j2
+    src: org.mozilla.Firefox.desktop
     dest: ~/.local/share/applications/{{ desktop_file }}
     mode: "440"
 
 - name: Install addons for {{ profile }}
   firefox_addon:
-    url: https://addons.mozilla.org/en-US/firefox/addon/{{addon}}
+    url: https://addons.mozilla.org/en-US/firefox/addon/{{addon}} 
     state: present
-    profile: "{{ansible_env.HOME}}/.mozilla/firefox/{{ profile }}"
+    profile: "{{ansible_env.HOME}}/.mozilla/firefox/{{ profile }}" # wants a fullpath here
   tags: firefox-addons
   when: "'https://' not in addon"
   loop_control:
@@ -31,7 +31,7 @@
   firefox_addon:
     url: "{{ addon }}"
     state: present
-    profile: "{{ansible_env.HOME}}/.mozilla/firefox/{{ profile }}"
+    profile: "{{ansible_env.HOME}}/.mozilla/firefox/{{ profile }}" # wants a fullpath here
   tags: firefox-addons
   when: "'https://' in addon"
   loop_control:
@@ -40,17 +40,17 @@
 
 - name: ensure chrome directory exists
   file:
-    path: "{{ansible_env.HOME}}/.mozilla/firefox/{{ profile }}/chrome"
+    path: ~/.mozilla/firefox/{{ profile }}/chrome
     state: directory
 
 - name: Install userChrome.css
-  ansible.builtin.template:
-    src: "{{ role_path }}/files/firefox/userChrome.css.j2"
-    dest: "{{ansible_env.HOME}}/.mozilla/firefox/{{ profile }}/chrome/userChrome.css"
+  template:
+    src: userChrome.css
+    dest: "~/.mozilla/firefox/{{ profile }}/chrome/userChrome.css"
     mode: u=rw,g=r,o=r
 
 - name: Install user.js
-  ansible.builtin.template:
-    src: "{{ role_path }}/files/firefox/user.js.j2"
-    dest: "{{ansible_env.HOME}}/.mozilla/firefox/{{ profile }}/user.js"
+  template:
+    src: user.js
+    dest: ~/.mozilla/firefox/{{ profile }}/user.js
     mode: u=rw,g=r,o=r

@@ -1,19 +1,10 @@
 ---
 - name: Install firefox flatpak package
   community.general.flatpak:
-    remote: fedora
-    name: firefox
+    remote: fedora # we use fedora remote, as it supports aarch64
+    name: org.mozilla.Firefox
     state: present
-
-- name: Ensure flatpak overrides directory exists
-  file:
-    path: ~/.local/share/flatpak/overrides
-    state: directory
-
-- name: Install firefox Flatpak override
-  copy:
-    src: org.mozilla.firefox
-    dest: ~/.local/share/flatpak/overrides/org.mozilla.firefox
+    method: user
 
 - name: Ensure firefox directory exists
   file:
@@ -32,7 +23,7 @@
       vars:
         name: "{{ item.value.name | default('Firefox ' + item.key) }}"
         profile: "{{ item.key }}"
-        addons: "{{ addons + (item.value.addons | default([])) }}"
-        desktop_file: "{{ item.value.desktop | default('org.mozilla.firefox.' + item.key +'.desktop')}}"
+        addons: "{{ firefox_addons + (item.value.addons | default([])) }}"
+        desktop_file: "{{ item.value.desktop | default('org.mozilla.Firefox.' + item.key +'.desktop')}}"
         options: "{{ item.value.options | default({}) }}"
-  with_dict: "{{ profiles }}"
+  with_dict: "{{ firefox_profiles }}"

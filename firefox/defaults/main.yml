@@ -1,5 +1,5 @@
 # -- Global list of firefox addons
-addons: []
+firefox_addons: []
 
 # -- Dict of firefox profiles to create
-profiles: {}
+firefox_profiles: {}
