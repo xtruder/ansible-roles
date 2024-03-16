@@ -31,3 +31,11 @@
     config: "{{ incus_preseed_defaults | combine(incus_preseed_overrides, recursive=True, list_merge='append_rp') }}"
   when: (result.stdout | from_yaml) != config
   become: yes
+
+- name: Add incusbr0 to trusted zone
+  ansible.posix.firewalld:
+    zone: trusted
+    interface: incusbr0
+    permanent: true
+    state: enabled
+  become: yes
