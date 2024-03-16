@@ -1,8 +1,8 @@
 ---
 - name: Install firefox flatpak package
   community.general.flatpak:
-    remote: fedora # we use fedora remote, as it supports aarch64
-    name: org.mozilla.Firefox
+    remote: "{{ firefox_flatpak_remote }}"
+    name: "{{ firefox_flatpak_package }}"
     state: present
     method: user
 

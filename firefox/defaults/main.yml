@@ -3,3 +3,7 @@ firefox_addons: []
 
 # -- Dict of firefox profiles to create
 firefox_profiles: {}
+
+# flatpak package to use, by default it uses one from fedora as it works on aarch64
+firefox_flatpak_remote: fedora
+firefox_flatpak_package: "org.mozilla.Firefox"

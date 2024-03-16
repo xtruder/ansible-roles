@@ -5,16 +5,16 @@
   register: firefox_profile_exists
 
 - name: Create firefox profile {{ profile }} if it does not exist
-  shell: flatpak run --filesystem=~/.mozilla org.mozilla.Firefox -CreateProfile "{{ profile }} ~/.mozilla/firefox/{{ profile }}"
+  shell: flatpak run --filesystem=~/.mozilla {{ firefox_flatpak_package }} -CreateProfile "{{ profile }} ~/.mozilla/firefox/{{ profile }}"
   environment:
     WAYLAND_DISPLAY: wayland-0
   when: not firefox_profile_exists.stat.exists
 
 - name: Create firefox {{ profile }} profile desktop file
   template:
-    src: org.mozilla.Firefox.desktop
+    src: firefox.desktop
     dest: ~/.local/share/applications/{{ desktop_file }}
-    mode: "440"
+    mode: u=rw,g=rw,o=r
 
 - name: Install addons for {{ profile }}
   firefox_addon:
