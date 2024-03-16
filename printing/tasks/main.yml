@@ -1,10 +1,14 @@
 ---
-- name: Install hplip packages (fedora)
+- name: Install printing packages
   package:
-    name:
-      - hplip
-      - "{{ 'hplip-gui' if hp_enable_gui else omit }}"
+    name: "{{ packages | select() | list }}"
     state: present
+  vars:
+    packages:
+      - hplip
+      - "{{ printing_enable_gui | ternary('hplip-gui', '') }}"
+      - "{{ printing_enable_gui | ternary('simple-scan', '') }}"
+  become: yes
 
 # - name: Try to install hplip-plugin
 #   package:
@@ -13,9 +17,9 @@
 #   become: yes
 #   ignore_errors: true
 
-- name: Gather the rpm package facts
-  package_facts:
-    manager: auto
+# - name: Gather the rpm package facts
+#   package_facts:
+#     manager: auto
 
 - name: Print packages
   debug:
@@ -27,20 +31,18 @@
     state: directory
   become: yes
 
-- name: Copy hplip-plugin state file
-  ansible.builtin.template:
-    src: hp/hplip.state.j2
-    dest: /var/lib/hp/hplip.state
-    mode: "744"
-  vars:
-    hplip_version: "{{ ansible_facts.packages['hplip'].version.split('.')[0:3] | join('.') }}"
-  when: "'hplip' in ansible_facts.packages"
-  become: yes
+# - name: Copy hplip-plugin state file
+#   ansible.builtin.template:
+#     src: hp/hplip.state.j2
+#     dest: /var/lib/hp/hplip.state
+#     mode: "744"
+#   vars:
+#     hplip_version: "{{ ansible_facts.packages['hplip'].version.split('.')[0:3] | join('.') }}"
+#   when: "'hplip' in ansible_facts.packages"
+#   become: yes
 
 - name: Copy additional hp udev rules
   copy:
-    src: "hp/{{item}}"
-    dest: "/etc/udev/rules.d/{{item}}"
-  with_items:
-    - hp_lt4110.rules
+    src: hp_lt4110.rules
+    dest: /etc/udev/rules.d/99-hp_lt4110.rules
   become: yes
