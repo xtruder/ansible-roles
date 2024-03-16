@@ -1,0 +1,32 @@
+---
+- name: Upgrade packages (dnf)
+  dnf:
+    name: "*"
+    state: latest
+  when: 
+    - pkg_upgrade == True
+    - ansible_facts['pkg_mgr'] == "dnf"
+
+- name: Upgrade packages (rpm-ostree)
+  ansible.posix.rpm_ostree_upgrade:
+  when:
+    - pkg_upgrade == True
+    - ansible_facts['pkg_mgr'] == "community.general.rpm_ostree_pkg"
+
+- block:
+    - name: rpm-ostree get base packages for removal
+      include_role:
+        name: ostree-status
+
+    - name: Get packages for removal
+      set_fact:
+        remove_packages: "{{ fedora_ostree_remove_packages |  difference(ostree_status['deployments'][0]['requested-base-removals']) }}"
+
+    - name: Remove ostree packages from base layer
+      command: rpm-ostree override remove {{ remove_packages | join() }}
+      when: remove_packages
+      become: yes
+
+  when:
+    - ansible_facts['distribution'] == 'Fedora'
+    - ansible_facts['pkg_mgr'] == "community.general.rpm_ostree_pkg"

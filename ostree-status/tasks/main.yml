@@ -1,0 +1,9 @@
+---
+- name: Run rpm-ostree status
+  command: rpm-ostree status --json
+  register: result
+  changed_when: False
+
+- name: Parse rpm-ostree status output
+  set_fact:
+    ostree_status: "{{ result.stdout | from_json }}"

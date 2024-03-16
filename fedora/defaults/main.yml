@@ -1,3 +1,7 @@
 ---
 pkg_upgrade: False
 enable_secure_boot: False
+
+fedora_ostree_remove_packages:
+  - firefox
+  - firefox-langpacks
