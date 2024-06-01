@@ -25,7 +25,7 @@
   register: result
   become: false
   changed_when: "item.key not in result.stdout"
-  with_dict: "{{ install_extensions }}"
+  with_dict: "{{ gnome_install_extensions }}"
 
 - name: Template gnome dconf settings
   ansible.builtin.template:

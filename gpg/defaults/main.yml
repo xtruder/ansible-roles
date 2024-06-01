@@ -1,2 +1,2 @@
 ---
-gpg_enable_ssh_auth: True
+gpg_enable_ssh_auth: true

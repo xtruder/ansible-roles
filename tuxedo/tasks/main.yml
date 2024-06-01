@@ -60,3 +60,10 @@
     dest: /etc/xdg/autostart/tuxedo-control-center-tray.desktop
     mode: '0644'
   become: true
+
+- name: Disable power profiles daemon
+  ansible.builtin.systemd_service:
+    name: power-profiles-daemon.service
+    enabled: false
+    state: stopped
+  become: true

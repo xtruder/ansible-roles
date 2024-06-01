@@ -2,18 +2,18 @@
 - name: Install chromium flatpak package
   community.general.flatpak:
     remote: flathub
-    name: "{{ flatpak_package }}"
+    name: "{{ chromium_flatpak_package }}"
     state: present
     method: user
 
 - name: Ensure ~/.config directory exists
   ansible.builtin.file:
-    path: ~/.var/app/{{ flatpak_package }}/config
+    path: ~/.var/app/{{ chromium_flatpak_package }}/config
     state: directory
     mode: '0755'
 
 - name: Copy chromium-flags.conf
   ansible.builtin.copy:
     src: chromium-flags.conf
-    dest: ~/.var/app/{{ flatpak_package }}/config/chromium-flags.conf
+    dest: ~/.var/app/{{ chromium_flatpak_package }}/config/chromium-flags.conf
     mode: '0644'

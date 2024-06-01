@@ -1,5 +1,5 @@
 ---
-pkg_upgrade: False
+pkg_upgrade: false
 
 flatpak_remotes:
   flathub: https://flathub.org/repo/flathub.flatpakrepo
