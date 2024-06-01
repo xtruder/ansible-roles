@@ -2,65 +2,61 @@
 - name: Install extra gnome packages (fedora)
   ansible.builtin.package:
     name:
-    - gnome-system-monitor
-    - libgtop2-devel
-    - NetworkManager-libnm-devel
+      - gnome-system-monitor
+      - gnome-tweak-tool
 
-    - gnome-shell-extension-pop-shell
-    - gnome-tweak-tool
+      # TODO: install from source
+      - gnome-shell-extension-pop-shell
 
-    # desktop
-    - gpaste
-    - ulauncher
+      # needed by system-monitor-next extension
+      - libgtop2-devel
+      - NetworkManager-libnm-devel
+
+      # desktop
+      - gpaste
+      - ulauncher
 
     state: present
-  register: packages_installed
   become: true
   when: ansible_facts['distribution'] == "Fedora"
 
-- name: Ask reboot
-  pause:
-    prompt: "gnome packages installed, you would need to reboot to complete install. Reboot? (yes/no)?"
-  register: should_reboot
-  when: packages_installed.changed
-
-- name: Reboot
-  reboot: 
-  become: true
-  when:
-    - packages_installed.changed
-    - "{{ should_reboot.user_input | bool }}"
-
 - name: Install extra gnome extensions
-  shell: gnome-extensions list | grep {{ item.key }} || gnome-extensions install {{ item.value }}  
+  ansible.builtin.shell: set -o pipefail; gnome-extensions list | grep {{ item.key }} || gnome-extensions install {{ item.value }}
   register: result
-  become: no
+  become: false
   changed_when: "item.key not in result.stdout"
   with_dict: "{{ install_extensions }}"
 
 - name: Template gnome dconf settings
-  template:
+  ansible.builtin.template:
     src: dconf.ini
     dest: ~/.config/dconf.ini
     mode: "600"
   register: dconf_template
-  become: no
+  become: false
 
-- name: Load gnome dconf settings from {{ role_path }}/files/
-  shell: dconf load -f / < {{ dconf_template.dest }}
-  when: dconf_template.changed
-  become: no
+- name: Load gnome dconf settings
+  ansible.builtin.shell: set -o pipefail; dconf load -f / < {{ dconf_template.dest }}
+  changed_when: dconf_template.changed
+  become: false
 
 - name: Enable gnome shell extensions
-  shell: gnome-extensions list --enabled | grep {{ item }} || gnome-extensions enable {{ item }}
+  ansible.builtin.shell: set -o pipefail; gnome-extensions list --enabled | grep {{ item }} || gnome-extensions enable {{ item }}
   register: result
   changed_when: "item not in result.stdout"
   with_items: '{{ gnome_enable_extensions }}'
-  become: no
+  become: false
 
 - name: Disable gnome shell extensions
-  shell: gnome-extensions list --disabled | grep {{ item }} || gnome-extensions disable {{ item }}
+  ansible.builtin.shell: set -o pipefail; gnome-extensions list --disabled | grep {{ item }} || gnome-extensions disable {{ item }}
   register: result
   changed_when: "item not in result.stdout"
   with_items: '{{ gnome_disable_extensions }}'
-  become: no
+  become: false
+
+- name: Enable ulauncher autostart
+  ansible.builtin.file:
+    src: /usr/share/applications/ulauncher.desktop
+    dest: ~/.config/autostart/ulauncher.desktop
+    state: link
+  become: false
