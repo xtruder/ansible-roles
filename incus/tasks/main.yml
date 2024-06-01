@@ -1,36 +1,37 @@
 ---
 - name: Incus yum repository
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: copr:copr.fedorainfracloud.org:ganto:lxc4
     file: ganto-lxc4-incus
     description: Copr repo for lxc4 owned by ganto
     baseurl: https://download.copr.fedorainfracloud.org/results/ganto/lxc4/fedora-$releasever-$basearch/
-    skip_if_unavailable: True
+    skip_if_unavailable: true
     gpgcheck: 1
     gpgkey: https://download.copr.fedorainfracloud.org/results/ganto/lxc4/pubkey.gpg
     repo_gpgcheck: 0
     enabled: 1
-  become: yes 
+  become: true
 
 - name: Install incus
-  package:
+  ansible.builtin.package:
     name: incus
     state: present
-  become: yes
+  become: true
 
 - name: Gather incus preseed config
-  command: "incus admin init --dump"
+  ansible.builtin.command: "incus admin init --dump"
   register: result
   changed_when: false
 
 - name: Pressed incus config
-  command:
+  ansible.builtin.command:
     cmd: "incus admin init --preseed"
     stdin: "{{ config | to_yaml(indent=4) }}"
   vars:
     config: "{{ incus_preseed_defaults | combine(incus_preseed_overrides, recursive=True, list_merge='append_rp') }}"
+  changed_when: true
   when: (result.stdout | from_yaml) != config
-  become: yes
+  become: true
 
 - name: Add incusbr0 to trusted zone
   ansible.posix.firewalld:
@@ -38,4 +39,4 @@
     interface: incusbr0
     permanent: true
     state: enabled
-  become: yes
+  become: true

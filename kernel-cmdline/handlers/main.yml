@@ -1,8 +1,10 @@
 ---
 - name: Update Grub2 config file fedora
-  become: yes
-  shell: grub2-mkconfig -o {{ grub_cmdline_config }}
+  become: true
+  ansible.builtin.command: grub2-mkconfig -o {{ grub_cmdline_config }}
+  changed_when: false
 
 - name: Update Grub2 config file ubuntu
-  become: yes
-  shell: /usr/sbin/update-grub
+  become: true
+  ansible.builtin.command: /usr/sbin/update-grub
+  changed_when: false

@@ -8,14 +8,14 @@
     enabled: 1
     gpgcheck: 1
     gpgkey: https://download.copr.fedorainfracloud.org/results/offlinehacker/trezord/pubkey.gpg
-    skip_if_unavailable: False
-  become: yes
+    skip_if_unavailable: false
+  become: true
   when: ansible_distribution == "Fedora"
 
 - name: Install trezor packages
-  package:
+  ansible.builtin.package:
     name:
       - trezord
       - python-trezor_agent
-  become: yes
+  become: true
   when: ansible_distribution == "Fedora"

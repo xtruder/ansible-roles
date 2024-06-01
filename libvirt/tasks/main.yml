@@ -1,6 +1,6 @@
 ---
 - name: Install libvirt packages
-  package:
+  ansible.builtin.package:
     name:
       - virt-install
       - virt-manager
@@ -9,10 +9,10 @@
       - libvirt-daemon-config-network
       - libvirt-daemon-kvm
     state: present
-  become: yes
+  become: true
 
 - name: Enable libvirt services
-  systemd:
+  ansible.builtin.systemd:
     name: libvirtd
     enabled: true
-  become: yes
+  become: true

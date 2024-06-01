@@ -1,6 +1,6 @@
 ---
 - name: Install akmods
-  package:
+  ansible.builtin.package:
     name: 
       - akmods
       - mokutil
@@ -9,7 +9,7 @@
       - "{{ 'rpmdevtools' if ansible_facts['pkg_mgr'] == 'community.general.rpm_ostree_pkg' else '' }}"
     state: present
   register: install_akmods
-  become: yes
+  become: true
 
 - name: Ask reboot (rpm-ostree)
   pause:
@@ -21,7 +21,7 @@
 
 - name: Reboot (rpm-ostree)
   reboot: 
-  become: yes
+  become: true
   when:
     - ansible_facts['pkg_mgr'] == "community.general.rpm_ostree_pkg"
     - install_akmods.changed
@@ -30,24 +30,24 @@
 - name: Check if akmods cert exists
   stat:
     path: /etc/pki/akmods/certs/public_key.der
-  become: yes
+  become: true
   register: akmods_cert_exists
 
 - name: Generate akmods CA
   command:
     cmd: kmodgenca --auto  
-  become: yes
+  become: true
   register: generate_kmod_ca
   when: not akmods_cert_exists.stat.exists
 
 - name: Import cert with mokutil
   command:
     cmd: mokutil --import /etc/pki/akmods/certs/public_key.der
-  become: yes
+  become: true
   when: generate_kmod_ca.changed
 
 - name: Build and install akmods-keys (rpm-ostree)
-  become: yes
+  become: true
   block:
     - name: Clone akmod-keys (rpm-ostree)
       git:

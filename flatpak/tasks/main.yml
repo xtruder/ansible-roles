@@ -1,9 +1,9 @@
 ---
 - name: Install flatpak
-  package:
+  ansible.builtin.package:
     name: flatpak
     state: present
-  become: yes
+  become: true
 
 - name: Add flathub remotes
   community.general.flatpak_remote:
@@ -17,12 +17,13 @@
   ansible.builtin.command: flatpak update --user --noninteractive
   register: flatpak_update_output
   changed_when: "'app/' in flatpak_update_output.stdout"
-  when: pkg_upgrade == True
+  when: pkg_upgrade
 
 - name: Ensure flatpak overrides directory exists
-  file:
+  ansible.builtin.file:
     path: ~/.local/share/flatpak/overrides
     state: directory
+    mode: '0755'
 
 - name: Install Flatpak overrides
   ansible.posix.synchronize:
@@ -30,9 +31,10 @@
     dest: ~/.local/share/flatpak/overrides
 
 - name: Ensure flatpak files directory exists
-  file:
+  ansible.builtin.file:
     path: ~/.local/share/flatpak/files
     state: directory
+    mode: '0755'
 
 - name: Install Flatpak files
   ansible.posix.synchronize:

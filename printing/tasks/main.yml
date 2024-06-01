@@ -1,6 +1,6 @@
 ---
 - name: Install printing packages
-  package:
+  ansible.builtin.package:
     name: "{{ packages | select() | list }}"
     state: present
   vars:
@@ -8,13 +8,13 @@
       - hplip
       - "{{ printing_enable_gui | ternary('hplip-gui', '') }}"
       - "{{ printing_enable_gui | ternary('simple-scan', '') }}"
-  become: yes
+  become: true
 
 # - name: Try to install hplip-plugin
-#   package:
+#   ansible.builtin.package:
 #     name: hplip-plugin
 #     state: present
-#   become: yes
+#   become: true
 #   ignore_errors: true
 
 # - name: Gather the rpm package facts
@@ -22,14 +22,15 @@
 #     manager: auto
 
 - name: Print packages
-  debug:
+  ansible.builtin.debug:
     var: ansible_facts.packages
 
 - name: Ensure hp directory exists
-  file:
+  ansible.builtin.file:
     path: /var/lib/hp
     state: directory
-  become: yes
+    mode: '0755'
+  become: true
 
 # - name: Copy hplip-plugin state file
 #   ansible.builtin.template:
@@ -39,10 +40,11 @@
 #   vars:
 #     hplip_version: "{{ ansible_facts.packages['hplip'].version.split('.')[0:3] | join('.') }}"
 #   when: "'hplip' in ansible_facts.packages"
-#   become: yes
+#   become: true
 
 - name: Copy additional hp udev rules
-  copy:
+  ansible.builtin.copy:
     src: hp_lt4110.rules
     dest: /etc/udev/rules.d/99-hp_lt4110.rules
-  become: yes
+    mode: '0644'
+  become: true

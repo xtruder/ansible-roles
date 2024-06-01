@@ -1,6 +1,6 @@
 ---
 - name: Install extra gnome packages (fedora)
-  package:
+  ansible.builtin.package:
     name:
     - gnome-system-monitor
     - libgtop2-devel
@@ -15,7 +15,7 @@
 
     state: present
   register: packages_installed
-  become: yes
+  become: true
   when: ansible_facts['distribution'] == "Fedora"
 
 - name: Ask reboot
@@ -26,7 +26,7 @@
 
 - name: Reboot
   reboot: 
-  become: yes
+  become: true
   when:
     - packages_installed.changed
     - "{{ should_reboot.user_input | bool }}"

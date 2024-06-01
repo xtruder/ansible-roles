@@ -8,36 +8,36 @@
     enabled: 1
     gpgcheck: 1
     gpgkey: https://rpm.tuxedocomputers.com/fedora/$releasever/0x54840598.pub.asc
-    skip_if_unavailable: False
+    skip_if_unavailable: false
     exclude: tuxedo-drivers,tuxedo-keyboard # tuxedo drivers will be installed from tuxedo-drivers-kmod copr
-  become: yes
+  become: true
   when: ansible_distribution == "Fedora"
 
 - name: Add tuxedo-drivers-kmod yum repo (for fedora kmod driver install)
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: copr:copr.fedorainfracloud.org:offlinehacker:tuxedo-drivers-kmod
     description: Copr repo for tuxedo-drivers-kmod owned by offlinehacker
     file: offlinehacker-tuxedo-drivers-kmod
     baseurl: https://download.copr.fedorainfracloud.org/results/offlinehacker/tuxedo-drivers-kmod/fedora-$releasever-$basearch/
-    skip_if_unavailable: True
+    skip_if_unavailable: true
     gpgcheck: 1
     gpgkey: https://download.copr.fedorainfracloud.org/results/offlinehacker/tuxedo-drivers-kmod/pubkey.gpg
     repo_gpgcheck: 0
     enabled: 1
-  become: yes
+  become: true
   when: ansible_distribution == "Fedora"
 
 - name: Install tuxedo packages
-  package:
+  ansible.builtin.package:
     name:
       - tuxedo-control-center
 
       - "{{ (ansible_distribution == 'Fedora') | ternary('akmod-tuxedo-drivers', 'tuxedo-drivers') }}"
     state: present
-  become: yes
+  become: true
 
 - name: AMD boot fixes
-  include_role:
+  ansible.builtin.include_role:
     name: kernel-cmdline
   vars:
     kernel_cmdline_args:
@@ -47,13 +47,16 @@
   when: "'AMD' in ansible_processor or 'AuthenticAMD' in ansible_processor"
 
 - name: Create autostart directory if it does not exist
-  file:
-    path: ~/.config/autostart
+  ansible.builtin.file:
+    path: /etc/xdg/autostart
     state: directory
     mode: '0755'
+  become: true
 
 - name: Add tuxedo control center to autostart
-  copy:
-    remote_src: yes
+  ansible.builtin.copy:
+    remote_src: true
     src: /usr/etc/skel/.config/autostart/tuxedo-control-center-tray.desktop
-    dest: ~/.config/autostart/tuxedo-control-center-tray.desktop
+    dest: /etc/xdg/autostart/tuxedo-control-center-tray.desktop
+    mode: '0644'
+  become: true

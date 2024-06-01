@@ -1,6 +1,6 @@
 ---
 - name: Add 1password repo
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: 1password
     description: 1Password Stable Channel
     baseurl: https://downloads.1password.com/linux/rpm/stable/$basearch
@@ -8,11 +8,11 @@
     gpgcheck: 0
     repo_gpgcheck: 0
     gpgkey: https://downloads.1password.com/linux/keys/1password.asc
-  become: yes 
+  become: true 
   when: ansible_facts['distribution'] == "Fedora"
 
 - name: Install 1password
-  package:
+  ansible.builtin.package:
     name: 1password
     state: present
-  become: yes
+  become: true

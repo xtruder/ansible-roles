@@ -7,7 +7,7 @@
     group: root
     mode: '0755'
   when: systemd_resolved_enable_nm_wlan_hook
-  become: yes
+  become: true
 
 - name: Configure systemd-resolved
   template:
@@ -17,4 +17,4 @@
     group: root
     mode: '0644'
   notify: restart systemd-resolved
-  become: yes
+  become: true

@@ -1,12 +1,12 @@
 ---
 - name: Install gpg2
-  package:
+  ansible.builtin.package:
     name: gnupg2
     state: present
-  become: yes
+  become: true
 
 - name: Enable user systemd gpg sockets
-  systemd_service:
+  ansible.builtin.systemd_service:
     name: "{{ item }}"
     scope: global
     enabled: true
@@ -14,12 +14,13 @@
     - gpg-agent.socket
     - gpg-agent-ssh.socket
     - gpg-agent-extra.socket
-  become: yes
+  become: true
 
 - name: Enable ssh auth using gpg
-  copy:
+  ansible.builtin.copy:
     content: |
       export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/gnupg/S.gpg-agent.ssh"
     dest: "/etc/profile.d/gpg-ssh-auth.sh"
+    mode: '0644'
   when: gpg_enable_ssh_auth
-  become: yes
+  become: true
