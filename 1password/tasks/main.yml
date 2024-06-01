@@ -8,7 +8,7 @@
     gpgcheck: 0
     repo_gpgcheck: 0
     gpgkey: https://downloads.1password.com/linux/keys/1password.asc
-  become: true 
+  become: true
   when: ansible_facts['distribution'] == "Fedora"
 
 - name: Install 1password
