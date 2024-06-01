@@ -1,0 +1,21 @@
+---
+- name: Install docker
+  ansible.builtin.package:
+    name:
+      - moby-engine
+      - docker-compose
+  when: ansible_facts['distribution'] == "Fedora"
+
+- name: Ensure /etc/docker directory exists
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: Copy docker daemon.json file
+  ansible.builtin.copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+    mode: '0644'
+  become: true
