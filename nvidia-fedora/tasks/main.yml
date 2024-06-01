@@ -1,0 +1,52 @@
+---
+- name: RPM Fusion for Fedora - Nvidia Driver
+  ansible.builtin.yum_repository:
+    name: RPM Fusion for Fedora $releasever - Nonfree - NVIDIA Driver
+    file: rpmfusion-nonfree-nvidia-driver
+    metalink: https://mirrors.rpmfusion.org/metalink?repo=nonfree-fedora-nvidia-driver-$releasever&arch=$basearch
+    enabled: 1
+    gpgcheck: 1
+    repo_gpgcheck: 0
+    gpgkey: file:///usr/share/distribution-gpg-keys/rpmfusion/RPM-GPG-KEY-rpmfusion-nonfree-fedora-$releasever
+    skip_if_unavailable: true
+  become: true
+
+- name: RPM Fusion for Fedora - NVIDIA Driver Debug
+  ansible.builtin.yum_repository:
+    name: RPM Fusion for Fedora $releasever - Nonfree - NVIDIA Driver Debug
+    file: rpmfusion-nonfree-nvidia-driver-debug
+    metalink: https://mirrors.rpmfusion.org/metalink?repo=nonfree-fedora-nvidia-driver-debug-$releasever&arch=$basearch
+    enabled: 1
+    gpgcheck: 1
+    repo_gpgcheck: 0
+    gpgkey: file:///usr/share/distribution-gpg-keys/rpmfusion/RPM-GPG-KEY-rpmfusion-nonfree-fedora-$releasever
+    skip_if_unavailable: true
+  become: true
+
+- name: RPM Fusion for Fedora - NVIDIA Driver Source
+  ansible.builtin.yum_repository:
+    name: RPM Fusion for Fedora $releasever - Nonfree - NVIDIA Driver Source
+    file: rpmfusion-nonfree-nvidia-driver-source
+    metalink: https://mirrors.rpmfusion.org/metalink?repo=nonfree-fedora-nvidia-driver-source-$releasever&arch=$basearch
+    enabled: 1
+    gpgcheck: 1
+    repo_gpgcheck: 0
+    gpgkey: file:///usr/share/distribution-gpg-keys/rpmfusion/RPM-GPG-KEY-rpmfusion-nonfree-fedora-$releasever
+    skip_if_unavailable: true
+  become: true
+
+- name: Install nvidia packages
+  ansible.builtin.package:
+    name:
+      - akmod-nvidia
+      - xorg-x11-drv-nvidia
+      - xorg-x11-drv-nvidia-cuda
+    state: present
+  become: true
+
+- name: Copy nvidia X11 config to use it as primary GPU
+  ansible.builtin.copy:
+    src: nvidia/nvidia.xorg.conf
+    dest: /etc/X11/xorg.conf.d/nvidia.conf
+    mode: '0755'
+  become: true
