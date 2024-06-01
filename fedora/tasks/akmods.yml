@@ -12,7 +12,7 @@
   become: true
 
 - name: Ask reboot (rpm-ostree)
-  pause:
+  ansible.builtin.pause:
     prompt: "akmod installed, you would need to reboot to complete. Reboot? (yes/no)?"
   register: should_reboot
   when:
@@ -20,55 +20,57 @@
     - install_akmods.changed
 
 - name: Reboot (rpm-ostree)
-  reboot: 
+  ansible.builtin.reboot:
   become: true
   when:
     - ansible_facts['pkg_mgr'] == "community.general.rpm_ostree_pkg"
     - install_akmods.changed
-    - "{{ should_reboot.user_input | bool }}"
+    - should_reboot.user_input | bool
 
 - name: Check if akmods cert exists
-  stat:
+  ansible.builtin.stat:
     path: /etc/pki/akmods/certs/public_key.der
   become: true
   register: akmods_cert_exists
 
 - name: Generate akmods CA
-  command:
-    cmd: kmodgenca --auto  
+  ansible.builtin.command: kmodgenca --auto
   become: true
   register: generate_kmod_ca
+  changed_when: true
   when: not akmods_cert_exists.stat.exists
 
-- name: Import cert with mokutil
-  command:
-    cmd: mokutil --import /etc/pki/akmods/certs/public_key.der
+- name: Import cert with mokutil # noqa no-handler no-changed-when
+  ansible.builtin.command: mokutil --import /etc/pki/akmods/certs/public_key.der
   become: true
   when: generate_kmod_ca.changed
 
 - name: Build and install akmods-keys (rpm-ostree)
   become: true
+  when: ansible_facts['pkg_mgr'] == "community.general.rpm_ostree_pkg"
   block:
     - name: Clone akmod-keys (rpm-ostree)
-      git:
+      ansible.builtin.git: # noqa latest[git]
         repo: https://github.com/CheariX/silverblue-akmods-keys.git
+        refspec: d8da70db94a78759d0ceca1829eb825c0efd002e
         dest: /root/akmods-keys
         force: true
 
     - name: Find if akmod-keys rpm already built (rpm-ostree)
-      find:
+      ansible.builtin.find:
         paths: /root/akmods-keys
         patterns: 'akmods-keys-*.rpm'
       register: found_akmods_rpm
 
     - name: Build akmod-keys (rpm-ostree)
-      command:
+      ansible.builtin.command:
         chdir: /root/akmods-keys
         cmd: bash ./setup.sh
+      changed_when: true
       when: found_akmods_rpm.matched == 0
 
     - name: Find built akmod-keys rpm (rpm-ostree)
-      find:
+      ansible.builtin.find:
         paths: /root/akmods-keys
         patterns: 'akmods-keys-*.rpm'
       register: found_akmods_rpm
@@ -78,5 +80,3 @@
         name: "{{ found_akmods_rpm.files[0].path }}"
         state: present
       when: found_akmods_rpm.matched > 0
-
-  when: ansible_facts['pkg_mgr'] == "community.general.rpm_ostree_pkg"

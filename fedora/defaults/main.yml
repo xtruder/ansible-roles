@@ -1,6 +1,6 @@
 ---
-pkg_upgrade: False
-enable_secure_boot: False
+pkg_upgrade: false
+enable_secure_boot: false
 
 fedora_ostree_remove_packages:
   - firefox

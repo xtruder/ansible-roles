@@ -1,7 +1,7 @@
 ---
-- name: setup packages
-  include_tasks: packages.yml
+- name: Setup packages
+  ansible.builtin.include_tasks: packages.yml
 
-- name: akmods setup
-  include_tasks: akmods.yml
+- name: Akmods setup
+  ansible.builtin.include_tasks: akmods.yml
   when: enable_secure_boot

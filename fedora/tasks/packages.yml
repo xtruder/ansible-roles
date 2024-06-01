@@ -1,32 +1,34 @@
 ---
 - name: Upgrade packages (dnf)
-  dnf:
+  ansible.builtin.dnf: # noqa package-latest
     name: "*"
     state: latest
-  when: 
-    - pkg_upgrade == True
+  when:
+    - pkg_upgrade
     - ansible_facts['pkg_mgr'] == "dnf"
 
 - name: Upgrade packages (rpm-ostree)
   ansible.posix.rpm_ostree_upgrade:
   when:
-    - pkg_upgrade == True
+    - pkg_upgrade
     - ansible_facts['pkg_mgr'] == "community.general.rpm_ostree_pkg"
 
-- block:
-    - name: rpm-ostree get base packages for removal
-      include_role:
-        name: ostree-status
-
-    - name: Get packages for removal
-      set_fact:
-        remove_packages: "{{ fedora_ostree_remove_packages |  difference(ostree_status['deployments'][0]['requested-base-removals']) }}"
-
-    - name: Remove ostree packages from base layer
-      command: rpm-ostree override remove {{ remove_packages | join() }}
-      when: remove_packages
-      become: true
-
+- name: Remove rpm-ostree packages from base layer
   when:
     - ansible_facts['distribution'] == 'Fedora'
     - ansible_facts['pkg_mgr'] == "community.general.rpm_ostree_pkg"
+
+  block:
+    - name: Get rpm-ostree base packages for removal
+      ansible.builtin.include_role:
+        name: ostree-status
+
+    - name: Get packages for removal
+      ansible.builtin.set_fact:
+        remove_packages: "{{ fedora_ostree_remove_packages | difference(ostree_status['deployments'][0]['requested-base-removals']) }}"
+
+    - name: Remove ostree packages from base layer
+      ansible.builtin.command: rpm-ostree override remove {{ remove_packages | join() }}
+      changed_when: true
+      when: remove_packages
+      become: true
