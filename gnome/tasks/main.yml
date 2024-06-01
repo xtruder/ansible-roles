@@ -2,15 +2,11 @@
 - name: Install extra gnome packages (fedora)
   package:
     name:
-    # system gnome shell extensions
-    - gnome-shell-extension-appindicator
-    - gnome-shell-extension-system-monitor-applet
-    - gnome-shell-extension-gpaste
-    #- gnome-shell-extension-space-bar
-    - gnome-shell-extension-pop-shell
-    - gnome-pomodoro
+    - gnome-system-monitor
+    - libgtop2-devel
+    - NetworkManager-libnm-devel
 
-    # apperance
+    - gnome-shell-extension-pop-shell
     - gnome-tweak-tool
 
     # desktop
@@ -22,16 +18,9 @@
   become: yes
   when: ansible_facts['distribution'] == "Fedora"
 
-- name: Install extra gnome extensions
-  shell: gnome-extensions list | grep {{ item.key }} || gnome-extensions install {{ item.value }}  
-  register: result
-  become: no
-  changed_when: "item.key not in result.stdout"
-  with_dict: "{{ install_extensions }}"
-
 - name: Ask reboot
   pause:
-    prompt: "gnome extensions installed, you would need to reboot to complete install. Reboot? (yes/no)?"
+    prompt: "gnome packages installed, you would need to reboot to complete install. Reboot? (yes/no)?"
   register: should_reboot
   when: packages_installed.changed
 
@@ -41,6 +30,13 @@
   when:
     - packages_installed.changed
     - "{{ should_reboot.user_input | bool }}"
+
+- name: Install extra gnome extensions
+  shell: gnome-extensions list | grep {{ item.key }} || gnome-extensions install {{ item.value }}  
+  register: result
+  become: no
+  changed_when: "item.key not in result.stdout"
+  with_dict: "{{ install_extensions }}"
 
 - name: Template gnome dconf settings
   template:

@@ -10,3 +10,9 @@
       - libvirt-daemon-kvm
     state: present
   become: yes
+
+- name: Enable libvirt services
+  systemd:
+    name: libvirtd
+    enabled: true
+  become: yes

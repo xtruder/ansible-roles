@@ -38,11 +38,3 @@
   ansible.posix.synchronize:
     src: extra_files
     dest: ~/.local/share/flatpak/files
-
-- name: Install flatpak packages
-  community.general.flatpak:
-    remote: "{{item.split(':')[0]}}"
-    name: "{{item.split(':')[1]}}"
-    state: present
-    method: user
-  with_items: "{{ flatpak_install_packages }}"

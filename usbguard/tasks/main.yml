@@ -1,17 +1,17 @@
 ---
-- name: Add usbguard-gnome yum repo
-  yum_repository:
-    name: copr:copr.fedorainfracloud.org:offlinehacker:usbguard-gnome
-    description: Copr repo for usbguard-gnome owned by offlinehacker
-    file: offlinehacker-usbguard-gnome
-    baseurl: https://download.copr.fedorainfracloud.org/results/offlinehacker/usbguard-gnome/fedora-$releasever-$basearch/
-    skip_if_unavailable: True
-    gpgcheck: 1
-    gpgkey: https://download.copr.fedorainfracloud.org/results/offlinehacker/usbguard-gnome/pubkey.gpg
-    repo_gpgcheck: 0
-    enabled: 1
-  become: yes
-  when: ansible_distribution == "Fedora"
+# - name: Add usbguard-gnome yum repo
+#   yum_repository:
+#     name: copr:copr.fedorainfracloud.org:offlinehacker:usbguard-gnome
+#     description: Copr repo for usbguard-gnome owned by offlinehacker
+#     file: offlinehacker-usbguard-gnome
+#     baseurl: https://download.copr.fedorainfracloud.org/results/offlinehacker/usbguard-gnome/fedora-$releasever-$basearch/
+#     skip_if_unavailable: True
+#     gpgcheck: 1
+#     gpgkey: https://download.copr.fedorainfracloud.org/results/offlinehacker/usbguard-gnome/pubkey.gpg
+#     repo_gpgcheck: 0
+#     enabled: 1
+#   become: yes
+#   when: ansible_distribution == "Fedora"
 
 - name: Install usbguard packages
   package:
@@ -21,7 +21,26 @@
     packages:
       - usbguard
       - usbguard-dbus
-      - "{{ usbguard_gnome_integration | ternary('usbguard-gnome', '') }}"
+      #- "{{ usbguard_gnome_integration | ternary('usbguard-gnome', '') }}"
+  become: yes
+
+- name: Enable usbguard systemd services
+  systemd_service:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  with_items:
+    - usbguard
+    - usbguard-dbus
+  become: yes
+
+- name: Copy polkit rule that allows user to control usbguard
+  copy:
+    src: 99-user-allow-usbguard.rules
+    dest: /etc/polkit-1/rules.d/99-user-allow-usbguard.rules
+    owner: root
+    group: root
+    mode: "0644"
   become: yes
 
 - name: Enable gnome usb protection

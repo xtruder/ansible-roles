@@ -1,0 +1,25 @@
+---
+- name: Install gpg2
+  package:
+    name: gnupg2
+    state: present
+  become: yes
+
+- name: Enable user systemd gpg sockets
+  systemd_service:
+    name: "{{ item }}"
+    scope: global
+    enabled: true
+  with_items:
+    - gpg-agent.socket
+    - gpg-agent-ssh.socket
+    - gpg-agent-extra.socket
+  become: yes
+
+- name: Enable ssh auth using gpg
+  copy:
+    content: |
+      export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/gnupg/S.gpg-agent.ssh"
+    dest: "/etc/profile.d/gpg-ssh-auth.sh"
+  when: gpg_enable_ssh_auth
+  become: yes

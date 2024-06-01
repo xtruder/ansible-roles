@@ -1,4 +1,3 @@
 ---
-
 # name of the flatpak package to install
 flatpak_package: com.github.Eloston.UngoogledChromium

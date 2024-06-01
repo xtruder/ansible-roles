@@ -1,6 +1,9 @@
 ---
 install_extensions:
   space-bar@luchrioh: https://extensions.gnome.org/extension-data/space-barluchrioh.v23.shell-extension.zip  
+  appindicatorsupport@rgcjonas.gmail.com: https://extensions.gnome.org/extension-data/appindicatorsupportrgcjonas.gmail.com.v58.shell-extension.zip
+  system-monitor-next@paradoxxx.zero.gmail.com: https://extensions.gnome.org/extension-data/system-monitor-nextparadoxxx.zero.gmail.com.v66.shell-extension.zip
+  nightthemeswitcher@romainvigier.fr: https://extensions.gnome.org/extension-data/nightthemeswitcherromainvigier.fr.v77.shell-extension.zip
 
 gnome_enable_extensions:
   #- user-theme@gnome-shell-extensions.gcampax.github.com

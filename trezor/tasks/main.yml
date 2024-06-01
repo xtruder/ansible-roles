@@ -1,2 +1,21 @@
 ---
 - name: Add repo for trezord
+  ansible.builtin.yum_repository:
+    name: copr:copr.fedorainfracloud.org:offlinehacker:trezord
+    description: Copr repo for trezord owned by offlinehacker
+    file: offlinehacker-trezord
+    baseurl: https://download.copr.fedorainfracloud.org/results/offlinehacker/trezord/fedora-$releasever-$basearch/
+    enabled: 1
+    gpgcheck: 1
+    gpgkey: https://download.copr.fedorainfracloud.org/results/offlinehacker/trezord/pubkey.gpg
+    skip_if_unavailable: False
+  become: yes
+  when: ansible_distribution == "Fedora"
+
+- name: Install trezor packages
+  package:
+    name:
+      - trezord
+      - python-trezor_agent
+  become: yes
+  when: ansible_distribution == "Fedora"

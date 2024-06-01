@@ -45,3 +45,15 @@
       - acpi.ec_no_wakeup=1
       - gpiolib_acpi.ignore_interrupt=AMDI0030:00@0
   when: "'AMD' in ansible_processor or 'AuthenticAMD' in ansible_processor"
+
+- name: Create autostart directory if it does not exist
+  file:
+    path: ~/.config/autostart
+    state: directory
+    mode: '0755'
+
+- name: Add tuxedo control center to autostart
+  copy:
+    remote_src: yes
+    src: /usr/etc/skel/.config/autostart/tuxedo-control-center-tray.desktop
+    dest: ~/.config/autostart/tuxedo-control-center-tray.desktop
