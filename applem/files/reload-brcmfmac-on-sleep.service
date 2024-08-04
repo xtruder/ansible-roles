@@ -1,0 +1,16 @@
+[Unit]
+Description=Reload brcmfmac module on sleep
+Before=sleep.target
+StopWhenUnneeded=yes
+
+[Service]
+User=root
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/rmmod brcmfmac_wcc brcmfmac
+ExecStart=/usr/bin/sleep 1
+ExecStop=/usr/bin/sleep 1
+ExecStop=/usr/sbin/modprobe brcmfmac feature_disable=0x82000
+
+[Install]
+WantedBy=sleep.target

@@ -1,0 +1,20 @@
+---
+- name: Apple - Disable hardware acceleration for brcmfmac wifi
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/brcmfmac-disable-hw-accel.conf
+    src: brcmfmac-disable-hw-accel.conf
+    mode: '0644'
+
+- name: Create systemd service for reloading brcmfmac kernel module on sleep
+  ansible.builtin.copy:
+    src: reload-brcmfmac-on-sleep.service
+    dest: /etc/systemd/system/reload-brcmfmac-on-sleep.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable reload-brcmfmac-on-sleep
+  ansible.builtin.systemd:
+    name: reload-brcmfmac-on-sleep.service
+    enabled: true
+    daemon_reload: true

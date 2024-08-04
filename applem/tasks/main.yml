@@ -1,0 +1,7 @@
+---
+- name: Deploy apple broadcom wifi fix
+  ansible.builtin.include_tasks:
+    file: brcmfmac-wifi-fix.yml
+    apply:
+      become: true
+  when: applem_enable_wifi_fix
