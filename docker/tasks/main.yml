@@ -5,6 +5,7 @@
       - moby-engine
       - docker-compose
   when: ansible_facts['distribution'] == "Fedora"
+  become: true
 
 - name: Ensure /etc/docker directory exists
   ansible.builtin.file:
