@@ -1,12 +1,14 @@
 ---
 - name: Install akmods
-  ansible.builtin.package:
-    name:
+  vars:
+    pkgs:
       - akmods
       - mokutil
 
       # neeed for building akmods-keys that is required to include keys to ostree store for signing
       - "{{ 'rpmdevtools' if ansible_facts['pkg_mgr'] == 'community.general.rpm_ostree_pkg' else '' }}"
+  ansible.builtin.package:
+    name: "{{ pkgs | select | list }}"
     state: present
   register: install_akmods
   become: true
