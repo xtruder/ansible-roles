@@ -1,19 +1,18 @@
 ---
 gnome_install_extensions:
-  space-bar@luchrioh: https://extensions.gnome.org/extension-data/space-barluchrioh.v23.shell-extension.zip
+  space-bar@luchrioh: https://extensions.gnome.org/extension-data/space-barluchrioh.v27.shell-extension.zip
   appindicatorsupport@rgcjonas.gmail.com: https://extensions.gnome.org/extension-data/appindicatorsupportrgcjonas.gmail.com.v58.shell-extension.zip
   system-monitor-next@paradoxxx.zero.gmail.com: https://extensions.gnome.org/extension-data/system-monitor-nextparadoxxx.zero.gmail.com.v66.shell-extension.zip
   nightthemeswitcher@romainvigier.fr: https://extensions.gnome.org/extension-data/nightthemeswitcherromainvigier.fr.v77.shell-extension.zip
 
 gnome_enable_extensions:
-  # - user-theme@gnome-shell-extensions.gcampax.github.com
+  - Move_Clock@rmy.pobox.com
   - places-menu@gnome-shell-extensions.gcampax.github.com
-  - appindicatorsupport@rgcjonas.gmail.com
   - launch-new-instance@gnome-shell-extensions.gcampax.github.com
+  - appindicatorsupport@rgcjonas.gmail.com
   - system-monitor-next@paradoxxx.zero.gmail.com
-  # - GPaste@gnome-shell-extensions.gcampax.github.com
-  - space-bar@luchrioh
   - nightthemeswitcher@romainvigier.fr
   - pop-shell@system76.com
+  - space-bar@luchrioh
 
 gnome_disable_extensions: []
