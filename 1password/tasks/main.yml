@@ -1,18 +1,19 @@
 ---
-- name: Add 1password repo
-  ansible.builtin.yum_repository:
-    name: 1password
-    description: 1Password Stable Channel
-    baseurl: https://downloads.1password.com/linux/rpm/stable/$basearch
-    enabled: 1
-    gpgcheck: 0
-    repo_gpgcheck: 0
-    gpgkey: https://downloads.1password.com/linux/keys/1password.asc
-  become: true
-  when: ansible_facts['distribution'] == "Fedora"
+- name: Set install source (running on ARM)
+  ansible.builtin.set_fact:
+    onepassword_install_binary: true
+  when: ansible_architecture == "aarch64"
 
-- name: Install 1password
-  ansible.builtin.package:
-    name: 1password
-    state: present
-  become: true
+- name: Install 1password (using pacakge)
+  ansible.builtin.include_tasks:
+    file: install-pkg.yml
+    apply:
+      become: true
+  when: not onepassword_install_binary
+
+- name: Install 1password (using binary)
+  ansible.builtin.include_tasks:
+    file: install-binary.yml
+    apply:
+      become: true
+  when: onepassword_install_binary

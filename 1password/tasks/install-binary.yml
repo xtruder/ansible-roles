@@ -1,0 +1,42 @@
+---
+- name: Check 1password exists
+  ansible.builtin.stat:
+    path: /opt/1Password/1password
+  register: onepassword
+
+- name: Ensure 1password directory exists
+  ansible.builtin.file:
+    path: /opt/1Password
+    state: directory
+    mode: '0755'
+  when: not onepassword.stat.exists or onepassword_force_reinstall
+
+- name: Download 1password archive
+  ansible.builtin.get_url:
+    url: "{{ onepassword_binary_url }}"
+    dest: /tmp/1password.tar.gz
+    mode: '0644'
+  when: not onepassword.stat.exists or onepassword_force_reinstall
+
+- name: Extract 1password
+  ansible.builtin.unarchive:
+    src: /tmp/1password.tar.gz
+    dest: /opt/1Password
+    remote_src: true
+    extra_opts: ['--strip-components=1', '--show-stored-names']
+  when: not onepassword.stat.exists or onepassword_force_reinstall
+
+- name: Check 1password installed
+  ansible.builtin.stat:
+    path: /usr/bin/1password
+  register: onepassword_bin
+
+- name: Run 1password post install script # noqa no-changed-when
+  ansible.builtin.command:
+    cmd: /opt/1Password/after-install.sh
+  when: not onepassword_bin.stat.exists or onepassword_force_reinstall
+
+- name: Delete 1password archive
+  ansible.builtin.file:
+    state: absent
+    path: /tmp/1password.tar.gz

@@ -1,0 +1,13 @@
+---
+
+# whether to install 1password from binary (default use distro package)
+onepassword_install_binary: false
+
+# whether to force reinstall of onepassword, for example to update (only for binary)
+onepassword_force_reinstall: false
+
+# onepassword version to install
+onepassword_version: stable
+
+# url for onepassword binary downloads
+onepassword_binary_url: https://downloads.1password.com/linux/tar/{{ onepassword_version }}/{{ ansible_architecture }}/1password-latest.tar.gz
